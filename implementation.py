@@ -862,8 +862,8 @@ if __name__ == "__main__":
       ac_loop = ActorCriticLoop(
           env_id="Negotiation-v0",
           actor_model1_name="gpt-4o-mini",
-          actor_model2_name="gpt-4o-mini",
-          critic_model_name="gpt-4o-mini", # Disable for pure agents implementation
+          actor_model2_name="gpt-3.5-turbo",
+          critic_model_name="gpt-3.5-turbo", # Disable for pure agents implementation
           isHuman=True
       )
 

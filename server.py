@@ -6,11 +6,21 @@ from implementation import ActorCriticLoop, ActorOnlyLoop, WebSocketActorCriticL
 from dotenv import load_dotenv
 from typing import Dict, Any, List, Optional
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware  # Add this import
 
 # Load environment variables
 load_dotenv()
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 class GameConfig(BaseModel):
     actor_model1_name: str
@@ -166,5 +176,5 @@ async def websocket_game_only_actor(websocket: WebSocket, actor_model1: str, act
         await manager.send_message(error_message, websocket)
         manager.disconnect(websocket)
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="0.0.0.0", port=8000)

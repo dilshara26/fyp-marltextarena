@@ -2,15 +2,20 @@
 import textarena as ta
 import os
 from typing import Any, Dict, List, Optional, Optional, Generator
-import openai
+from openai  import OpenAI 
+
 import numpy as np
 from dataclasses import dataclass
 from collections import deque
 import json
 from datetime import datetime
+from enum import Enum
+
+openai = OpenAI()
+openai.api_key = "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"
 
 # Check available openAI models
-ta.basic_agents.openai.models.list()
+# ta.basic_agents.openai.models.list()
 
 # Define the Agent, Critique, and the ActorCritique memory blocks
 @dataclass
@@ -60,16 +65,34 @@ class StateAnalyzer:
 2. Calculate potential trade advantages
 3. Suggest optimal trading strategies
 4. Consider opponent's trading patterns"""
+        # Initialize OpenAI client based on model type
+        self.client = self._initialize_client()
+
+    def _initialize_client(self) -> OpenAI:
+        """Initialize OpenAI client based on model type"""
+        if self.model.startswith("llama"):
+            return OpenAI(
+                api_key="6e67d74f-9aba-4652-ac2e-4cd1b4f7f1f1",
+                base_url= "https://api.llama-api.com"
+            )
+        elif self.model.startswith("deepseek"):
+            return OpenAI(
+                api_key=os.getenv("DEEPSEEK_API_KEY"),
+                base_url=os.getenv("DEEPSEEK_API_BASE_URL", "https://api.deepseek.com")
+            )
+        else:  # Default for GPT models
+            return OpenAI(api_key="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")
 
     def analyze(self, global_state: str, memories: Dict[int, List[ObservationMemory]]) -> Dict[int, FeedbackMemory]:
-        """For a particular step taken by an agent, critic Analyzes the memories of each agent as well as the environment, then generates the feedback for each agent"""
+        """For a particular step taken by an agent, critic Analyzes the memories of each agent as well as the environment"""
         feedbacks = {}
         try:
             for agent_id in [0, 1]:
                 recent_obs = memories[agent_id]
                 prompt = self._generate_trading_prompt(agent_id, global_state, recent_obs)
 
-                response = openai.chat.completions.create(
+                # Use the initialized client
+                response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
                         {"role": "system", "content": self.system_prompt},
@@ -136,12 +159,31 @@ class ActionSelector:
 3. Respond to offers with [Accept] or [Deny]
 4. Make strategic trade offers using [Offer: X -> Y] format
 5. Adapt to opponent's trading patterns"""
+        # Initialize OpenAI client based on model type
+        self.client = self._initialize_client()
+
+    def _initialize_client(self) -> OpenAI:
+        """Initialize OpenAI client based on model type"""
+        if self.model.startswith("llama"):
+            return OpenAI(
+                api_key="6e67d74f-9aba-4652-ac2e-4cd1b4f7f1f1",
+                base_url= "https://api.llama-api.com"
+            )
+        elif self.model.startswith("deepseek"):
+            return OpenAI(
+                api_key=os.getenv("DEEPSEEK_API_KEY"),
+                base_url=os.getenv("DEEPSEEK_API_BASE_URL", "https://api.deepseek.com")
+            )
+        else:  # Default for GPT models
+            return OpenAI(api_key="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")
 
     def select_action(self, observation: str, recent_feedback: List[FeedbackMemory]) -> str:
+        print(f"model name {self.model}")
         try:
             feedback_text = self._format_trading_feedback(recent_feedback)
 
-            response = openai.chat.completions.create(
+            # Use the initialized client
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": self.system_prompt},

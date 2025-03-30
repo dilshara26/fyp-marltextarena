@@ -10,9 +10,16 @@ from collections import deque
 import json
 from datetime import datetime
 from enum import Enum
+from dotenv import load_dotenv
+
+load_dotenv()
+
+openaiKey = os.getenv("OPENAI_API_KEY")
+
+llama_key = os.getenv("LLAMA_API_KEY")
 
 openai = OpenAI()
-openai.api_key = "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"
+openai.api_key = openaiKey
 
 # Check available openAI models
 # ta.basic_agents.openai.models.list()
@@ -72,7 +79,7 @@ class StateAnalyzer:
         """Initialize OpenAI client based on model type"""
         if self.model.startswith("llama"):
             return OpenAI(
-                api_key="6e67d74f-9aba-4652-ac2e-4cd1b4f7f1f1",
+                api_key=llama_key,
                 base_url= "https://api.llama-api.com"
             )
         elif self.model.startswith("deepseek"):
@@ -81,7 +88,7 @@ class StateAnalyzer:
                 base_url=os.getenv("DEEPSEEK_API_BASE_URL", "https://api.deepseek.com")
             )
         else:  # Default for GPT models
-            return OpenAI(api_key="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")
+            return OpenAI(api_key=openaiKey)
 
     def analyze(self, global_state: str, memories: Dict[int, List[ObservationMemory]]) -> Dict[int, FeedbackMemory]:
         """For a particular step taken by an agent, critic Analyzes the memories of each agent as well as the environment"""
@@ -166,7 +173,7 @@ class ActionSelector:
         """Initialize OpenAI client based on model type"""
         if self.model.startswith("llama"):
             return OpenAI(
-                api_key="6e67d74f-9aba-4652-ac2e-4cd1b4f7f1f1",
+                api_key=llama_key,
                 base_url= "https://api.llama-api.com"
             )
         elif self.model.startswith("deepseek"):
@@ -175,7 +182,7 @@ class ActionSelector:
                 base_url=os.getenv("DEEPSEEK_API_BASE_URL", "https://api.deepseek.com")
             )
         else:  # Default for GPT models
-            return OpenAI(api_key="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")
+            return OpenAI(api_key=openaiKey)
 
     def select_action(self, observation: str, recent_feedback: List[FeedbackMemory]) -> str:
         print(f"model name {self.model}")
